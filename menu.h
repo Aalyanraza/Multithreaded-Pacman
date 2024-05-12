@@ -10,14 +10,39 @@
 #include <SFML/Graphics.hpp>
 #include <time.h>
 #include "game.h"
+#include "shared_variables.h"
 using namespace std;
 using namespace sf;
+
+vector<Coordinates> enemyCoordinates;
+Coordinates userCoordinates={6, 760};
+vector<wallcoordinates> wallVector;
 
 void game()
 {
     pthread_t game;
     pthread_create(&game, NULL, game_thread, NULL);
     pthread_join(game, NULL);
+
+    while (gamerunning)
+    {
+        char input;
+        cin >> input;
+
+        if ( input=='w'  || input=="W" || input=='a' || input=="A" || input=='s' || input=="S" || input=='d' || input=="D")
+        {
+            pthread_mutex_lock(&usermutex);
+            if (input == 'w' || input == 'W') 
+                userDirection = 'U';
+            else if (input == 'a' || input == 'A') 
+                userDirection = 'L'; 
+            else if (input == 's' || input == 'S') 
+                userDirection = 'D';
+            else if (input == 'd' || input == 'D') 
+                userDirection = 'R';
+            pthread_mutex_unlock(&usermutex);
+        }
+    }
 }
 
 void instructions(RenderWindow& window)
@@ -147,7 +172,8 @@ void* menu_thread(void *arg)
             {
                 case 0:
                     std::cout << "Starting game..." << std::endl;
-                    // Add code to start the game
+                    window.close();
+                    game();
                     break;
                 case 1:
                     std::cout << "Showing instructions..." << std::endl;
@@ -167,4 +193,5 @@ void* menu_thread(void *arg)
 
     pthread_exit(NULL);
 }
+
 #endif
