@@ -6,6 +6,7 @@
 #include <SFML/Graphics.hpp>
 #include <time.h>
 #include "menu.h"
+#include "shared_variables.h"
 using namespace std;
 
 int main() 

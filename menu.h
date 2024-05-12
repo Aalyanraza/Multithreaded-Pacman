@@ -14,9 +14,13 @@
 using namespace std;
 using namespace sf;
 
+vector<pthread_mutex_t> enemymutexes;
 vector<Coordinates> enemyCoordinates;
-Coordinates userCoordinates={6, 760};
+pthread_mutex_t usermutex;
+Coordinates userCoordinates={6,726};
 vector<wallcoordinates> wallVector;
+vector<char> enemyDirections;
+char userDirection;
 
 void game()
 {
@@ -29,7 +33,7 @@ void game()
         char input;
         cin >> input;
 
-        if ( input=='w'  || input=="W" || input=='a' || input=="A" || input=='s' || input=="S" || input=='d' || input=="D")
+        if ( input=='w'  || input=='W' || input=='a' || input=='A' || input=='s' || input=='S' || input=='d' || input=='D')
         {
             pthread_mutex_lock(&usermutex);
             if (input == 'w' || input == 'W') 
