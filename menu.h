@@ -15,17 +15,19 @@ using namespace std;
 using namespace sf;
 
 vector<pthread_mutex_t> enemymutexes;
-vector<Coordinates> enemyCoordinates;
+vector<Enemy> enemys;
 vector<RectangleShape> wallVector;
 vector <Coin> coins;
 
 pthread_mutex_t usermutex;
 pthread_mutex_t usermutex2;
+pthread_mutex_t enemymutex1;
 
 Coordinates userCoordinates={6,760};
 char userDirection = 'L';
 bool gamerunning=true;
 int score = 0;
+int lives = 3;
 
 Texture coinTexture;
 Sprite pacmanSprite;

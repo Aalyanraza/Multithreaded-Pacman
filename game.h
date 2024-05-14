@@ -37,7 +37,7 @@ void initCoins()
                 {
                     Sprite coinSprite;
                     coinSprite.setTexture(coinTexture);
-                    coinSprite.setScale(0.05, 0.05);
+                    coinSprite.setScale(0.03, 0.03);
 
                     coins.push_back(Coin(i, j, coinSprite));
                 }
@@ -49,19 +49,19 @@ void initWalls()
     // 1st inner box
         // 4 perpendicular walls to long horizontal walls (|)------------------(|)
     RectangleShape wall1(Vector2f(3, 100));
-    wall1.setPosition(50, 50);
+    wall1.setPosition(50, 100);
     wallVector.push_back(wall1);
 
     RectangleShape wall2(Vector2f(3, 100));
-    wall2.setPosition(1030, 50);
+    wall2.setPosition(1030, 100);
     wallVector.push_back(wall2);
 
     RectangleShape wall9(Vector2f(3, -100));
-    wall9.setPosition(50, 750);
+    wall9.setPosition(50, 700);
     wallVector.push_back(wall9);
 
     RectangleShape wall10(Vector2f(3, -100));
-    wall10.setPosition(1029, 750);
+    wall10.setPosition(1030, 700);
     wallVector.push_back(wall10);
 
     // 2 long horizontal walls |(------------------)|
@@ -74,12 +74,12 @@ void initWalls()
     wallVector.push_back(wall4);
 
     // Vertical walls in the middle
-    RectangleShape wall11(Vector2f(3, 400));
-    wall11.setPosition(50, 200);
+    RectangleShape wall11(Vector2f(3, 300));
+    wall11.setPosition(50, 250);
     wallVector.push_back(wall11);
 
-    RectangleShape wall12(Vector2f(3, 400));
-    wall12.setPosition(1030, 200);
+    RectangleShape wall12(Vector2f(3, 300));
+    wall12.setPosition(1030, 250);
     wallVector.push_back(wall12);
 
     // box in the middle
@@ -105,20 +105,20 @@ void initWalls()
 
     // 2nd inner box
     // 2 perpendicular walls to long horizontal walls (|)------------------(|)
-    RectangleShape wall14(Vector2f(100, 3));
-    wall14.setPosition(150, 100);
+    RectangleShape wall14(Vector2f(50, 3));
+    wall14.setPosition(200, 100);
     wallVector.push_back(wall14);
 
-    RectangleShape wall15(Vector2f(100, 3));
-    wall15.setPosition(150, 700);
+    RectangleShape wall15(Vector2f(50, 3));
+    wall15.setPosition(200, 700);
     wallVector.push_back(wall15);
 
-    RectangleShape wall16(Vector2f(-100, 3));
-    wall16.setPosition(930, 100);
+    RectangleShape wall16(Vector2f(-50, 3));
+    wall16.setPosition(880, 100);
     wallVector.push_back(wall16);
 
-    RectangleShape wall17(Vector2f(-100, 3));
-    wall17.setPosition(930, 700);
+    RectangleShape wall17(Vector2f(-50, 3));
+    wall17.setPosition(880, 700);
     wallVector.push_back(wall17);
 
     // 2 long vertical walls |(------------------)|
@@ -141,35 +141,35 @@ void initWalls()
 
     // 3rd Box
     // 1st vertex
-    RectangleShape wall22(Vector2f(240, 3));
-    wall22.setPosition(250, 200);
+    RectangleShape wall22(Vector2f(190, 3));
+    wall22.setPosition(300, 200);
     wallVector.push_back(wall22);
-    RectangleShape wall23(Vector2f(3, 150));
-    wall23.setPosition(250, 200);
+    RectangleShape wall23(Vector2f(3, 100));
+    wall23.setPosition(250, 250);
     wallVector.push_back(wall23);
 
     // 2nd vertex
-    RectangleShape wall24(Vector2f(3, -150));
-    wall24.setPosition(250, 600);
+    RectangleShape wall24(Vector2f(3, -100));
+    wall24.setPosition(250, 550);
     wallVector.push_back(wall24);
-    RectangleShape wall25(Vector2f(240, 3));
-    wall25.setPosition(250, 600);
+    RectangleShape wall25(Vector2f(190, 3));
+    wall25.setPosition(300, 600);
     wallVector.push_back(wall25);
 
     // 3rd vertex
-    RectangleShape wall26(Vector2f(3, 150));
-    wall26.setPosition(830, 200);
+    RectangleShape wall26(Vector2f(3, 100));
+    wall26.setPosition(830, 250);
     wallVector.push_back(wall26);
-    RectangleShape wall27(Vector2f(-240, 3));
-    wall27.setPosition(830, 200);
+    RectangleShape wall27(Vector2f(-190, 3));
+    wall27.setPosition(780, 200);
     wallVector.push_back(wall27);
 
     // 4th vertex
-    RectangleShape wall28(Vector2f(3, -150));
-    wall28.setPosition(830, 600);
+    RectangleShape wall28(Vector2f(3, -100));
+    wall28.setPosition(830, 550);
     wallVector.push_back(wall28);
-    RectangleShape wall29(Vector2f(-240, 3));
-    wall29.setPosition(830, 600);
+    RectangleShape wall29(Vector2f(-190, 3));
+    wall29.setPosition(780, 600);
     wallVector.push_back(wall29);
 
     // Boundaries
@@ -220,6 +220,19 @@ void drawWalls(RenderWindow& window)
     }
 }
 
+void drawEnemies(RenderWindow& window) 
+{
+    for (auto& enemy : enemys)  // Change const auto& to auto&
+    {
+        enemy.sprite.setPosition(enemy.x, enemy.y);
+        if (enemy.alive) 
+        {
+            window.draw(enemy.sprite);
+        }
+    }
+}
+
+
 void checkCoinDimensions() 
 {
     if (!coins.empty()) 
@@ -262,6 +275,12 @@ void* game_thread(void *arg)
     pacmanSprite.setTexture(pacmanTexture);
     pacmanSprite.setScale(0.17, 0.17);
 
+    pthread_t enemyThreads[4];
+    for (int i = 0; i < 4; ++i) 
+        pthread_create(&enemyThreads[i], NULL, enemyThread, (void*)&i);
+
+
+    sleep(1);
     while (window1.isOpen())
     {
         Event event;
@@ -321,6 +340,8 @@ void* game_thread(void *arg)
 
         drawWalls(window1);
         drawCoins(window1);
+
+        drawEnemies(window1);
 
         window1.draw(pacmanSprite);
 
