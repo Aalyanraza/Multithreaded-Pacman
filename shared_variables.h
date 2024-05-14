@@ -63,6 +63,22 @@ struct PowerPellet
     }
 };
 
+
+struct power
+{
+    int x,y;
+    Sprite sprite;
+    bool available;
+
+    power(int a=0, int b=0) : x(a), y(b), available(true) 
+    {
+        Texture texture;
+        texture.loadFromFile("pwer.jpg");
+        sprite.setTexture(texture);
+        sprite.setPosition(x, y);
+        sprite.setScale(0.2, 0.2);
+    }
+};
 // Declare shared variables for enemies, users, and walls
 extern vector<pthread_mutex_t> enemymutexes;
 extern vector<Enemy> enemys;
@@ -87,6 +103,7 @@ extern bool gamerunning;
 extern int score;
 extern int lives;
 extern vector<int> counts;
+extern power pwer;
 
 extern Texture coinTexture;
 extern Sprite pacmanSprite;

@@ -101,26 +101,24 @@ void initPowerPellets()
     PowerPellet pellet1(100, 500);
     powerPellets.push_back(pellet1);
 
-    PowerPellet pellet2(700,10)    ;
-    powerPellets.push_back(pellet2);
+    // PowerPellet pellet2(700,10)    ;
+    // powerPellets.push_back(pellet2);
 
 }
 
 void handleEnemyCollisionWithPellets(int enemyId) 
 {
     pthread_mutex_lock(&pelletmutex);
-    int j=0;
-    for (size_t i = 0; i < powerPellets.size(); ++i) 
+    for (int i = 0; i < 2; ++i) 
     {
         if (powerPellets[i].available && enemys[enemyId].sprite.getGlobalBounds().intersects(powerPellets[i].sprite.getGlobalBounds())) 
         {
             powerPellets[i].available = false;
             enemys[enemyId].pelletEaten = i+1;
             
-            counts[j] = i+1;
+            counts[i] = 0;
             cout<<"pellet eaten by "<<enemyId<<endl;
         }
-        j++;
     }
     pthread_mutex_unlock(&pelletmutex);
 }
@@ -205,7 +203,7 @@ void* enemyThread(void* num)
             pthread_mutex_unlock(&usermutex2);
         }
         pthread_mutex_unlock(&enemymutexes[enemyId]);
-
+        
         handleEnemyCollisionWithPellets(enemyId);
 
         if (enemys[enemyId].pelletEaten == 1 && counts[0] == 625)

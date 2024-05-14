@@ -31,6 +31,7 @@ bool gamerunning=true;
 int score = 0;
 int lives = 3;
 vector<int> counts(2,0);
+power pwer(385, 355);
 
 Texture coinTexture;
 Sprite pacmanSprite;
@@ -55,6 +56,7 @@ bool isCollisionWithWall(int x, int y, const Sprite& sprite)
 
     return false;
 }
+
 
 
 void game() 

@@ -245,6 +245,14 @@ void drawPowerPellets(RenderWindow& window)
     }
 }
 
+void drawPower(RenderWindow& window) 
+{
+    if (pwer.available) 
+    {
+        window.draw(pwer.sprite);
+    }
+}
+
 void checkCoinDimensions() 
 {
     if (!coins.empty()) 
@@ -265,6 +273,15 @@ void checkCoinDimensions()
     else 
     {
         cout << "No coins available." << endl;
+    }
+}
+
+void collisionUserPwer()
+{
+    if (pwer.sprite.getGlobalBounds().intersects(pacmanSprite.getGlobalBounds()))
+    {
+        pwer.available = false;
+        score += 50;
     }
 }
 
