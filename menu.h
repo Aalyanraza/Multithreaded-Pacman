@@ -16,38 +16,84 @@ using namespace sf;
 
 vector<pthread_mutex_t> enemymutexes;
 vector<Coordinates> enemyCoordinates;
-pthread_mutex_t usermutex;
-Coordinates userCoordinates={6,726};
-vector<wallcoordinates> wallVector;
+vector<RectangleShape> wallVector;
 vector<char> enemyDirections;
-char userDirection;
+vector <Coin> coins;
 
-void game()
+pthread_mutex_t usermutex;
+pthread_mutex_t usermutex2;
+
+Coordinates userCoordinates={6,760};
+char userDirection = 'L';
+bool gamerunning=true;
+int score = 0;
+
+Texture coinTexture;
+Sprite pacmanSprite;
+
+bool isCollisionWithWall(int x, int y, const Sprite& sprite) 
 {
+    FloatRect newBounds = sprite.getGlobalBounds();
+    newBounds.left = x;
+    newBounds.top = y;
+
+    for (const auto& wall : wallVector) 
+    {
+        Vector2f wallPosition = wall.getPosition();
+        Vector2f wallSize = wall.getSize();
+
+        RectangleShape wallRect(wallSize);
+        wallRect.setPosition(wallPosition);
+
+        if (newBounds.intersects(wallRect.getGlobalBounds())) 
+            return true;
+    }
+
+    return false;
+}
+
+
+void game() 
+{
+    coinTexture.loadFromFile("coin.jpg");
+
     pthread_t game;
     pthread_create(&game, NULL, game_thread, NULL);
-    pthread_join(game, NULL);
 
-    while (gamerunning)
+    while (gamerunning) 
     {
-        char input;
-        cin >> input;
+        pthread_mutex_lock(&usermutex);
+        char temp = userDirection;
+        pthread_mutex_unlock(&usermutex);
 
-        if ( input=='w'  || input=='W' || input=='a' || input=='A' || input=='s' || input=='S' || input=='d' || input=='D')
+        pthread_mutex_lock(&usermutex2);
+        if (temp == 'U' && userCoordinates.y > 6) 
         {
-            pthread_mutex_lock(&usermutex);
-            if (input == 'w' || input == 'W') 
-                userDirection = 'U';
-            else if (input == 'a' || input == 'A') 
-                userDirection = 'L'; 
-            else if (input == 's' || input == 'S') 
-                userDirection = 'D';
-            else if (input == 'd' || input == 'D') 
-                userDirection = 'R';
-            pthread_mutex_unlock(&usermutex);
+            if (!isCollisionWithWall(userCoordinates.x, userCoordinates.y - 1, pacmanSprite)) 
+                userCoordinates.y -= 1;
+        } 
+        else if (temp == 'D' && userCoordinates.y < 760) 
+        {
+            if (!isCollisionWithWall(userCoordinates.x, userCoordinates.y + 1, pacmanSprite)) 
+                userCoordinates.y += 1;
+        } 
+        else if (temp == 'L' && userCoordinates.x > 6) 
+        {
+            if (!isCollisionWithWall(userCoordinates.x - 1, userCoordinates.y, pacmanSprite)) 
+                userCoordinates.x -= 1;
+        } 
+        else if (temp == 'R' && userCoordinates.x < 1040) 
+        {
+            if (!isCollisionWithWall(userCoordinates.x + 1, userCoordinates.y, pacmanSprite)) 
+                userCoordinates.x += 1;
         }
+        pthread_mutex_unlock(&usermutex2);
+        
+        sleep(milliseconds(5));
     }
 }
+
+
 
 void instructions(RenderWindow& window)
 {

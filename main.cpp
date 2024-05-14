@@ -13,6 +13,7 @@ int main()
 {
     pthread_t menu;
     pthread_create(&menu, NULL, menu_thread, NULL);
-    pthread_join(menu, NULL);
+    sleep(1);
+    while (gamerunning) {}
     return 0;
 }
