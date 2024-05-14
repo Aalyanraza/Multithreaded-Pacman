@@ -69,13 +69,14 @@ void* enemyThread(void* num)
                 enemys[enemyId].y += 1;
         else if (enemys[enemyId].y > userCoordinates.y && !isCollisionWithWall(enemys[enemyId].x, enemys[enemyId].y - 1, enemys[enemyId].sprite))
                 enemys[enemyId].y -= 1;
-        else if (enemys[enemyId].x == userCoordinates.x && enemys[enemyId].y == userCoordinates.y)
+        else if (enemys[enemyId].sprite.getGlobalBounds().intersects( pacmanSprite.getGlobalBounds()))
         {
             lives--;
             cout<<"Lives: "<<lives<<endl;
             userCoordinates={6,760};
         }
         pthread_mutex_unlock(&enemymutexes[enemyId]);
+
         sleep(milliseconds(8));
 
     }
