@@ -27,17 +27,18 @@ struct Coin {
 
 struct Enemy
 {
-    int x, y;
+    int x, y, pelletEaten;
     Sprite sprite;
     bool alive;
 
-    Enemy() : x(0), y(0), alive(true) 
+
+
+    Enemy() : x(0), y(0), alive(true), pelletEaten(0)
     {
         Texture texture;
         texture.loadFromFile("ghost1.jpeg");
         sprite.setTexture(texture);
         sprite.setPosition(x, y);
-
     }
 
     Enemy(int i, int j, Sprite sprite1) : x(i), y(j), alive(true) 
@@ -47,23 +48,45 @@ struct Enemy
     }
 };
 
+struct PowerPellet 
+{
+    int  x, y;
+    bool available;
+    Sprite sprite;
+    PowerPellet(int a=0, int b=0) : x(a), y(b), available(true) 
+    {
+        Texture texture;
+        texture.loadFromFile("pill.jpg");
+        sprite.setTexture(texture);
+        sprite.setPosition(x, y);
+        sprite.setScale(0.2, 0.2);
+    }
+};
 
 // Declare shared variables for enemies, users, and walls
 extern vector<pthread_mutex_t> enemymutexes;
 extern vector<Enemy> enemys;
 extern vector<RectangleShape> wallVector;
 extern vector<Coin> coins;
+extern vector<PowerPellet> powerPellets;
 
 extern pthread_mutex_t usermutex;
 extern pthread_mutex_t usermutex2;
 extern pthread_mutex_t enemymutex1;
-
+extern pthread_mutex_t pelletmutex;
+extern pthread_mutex_t keyMutex1;
+extern pthread_mutex_t permitMutex2;
+extern pthread_mutex_t keyMutex2;
+extern pthread_mutex_t permitMutex2;
+extern pthread_mutex_t diners;
+extern pthread_mutex_t diners1;
 
 extern Coordinates userCoordinates;
 extern char userDirection;
 extern bool gamerunning;
 extern int score;
 extern int lives;
+extern vector<int> counts;
 
 extern Texture coinTexture;
 extern Sprite pacmanSprite;

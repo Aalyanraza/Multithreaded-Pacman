@@ -18,16 +18,19 @@ vector<pthread_mutex_t> enemymutexes;
 vector<Enemy> enemys;
 vector<RectangleShape> wallVector;
 vector <Coin> coins;
+vector <PowerPellet> powerPellets;
 
 pthread_mutex_t usermutex;
 pthread_mutex_t usermutex2;
 pthread_mutex_t enemymutex1;
+pthread_mutex_t pelletmutex;
 
 Coordinates userCoordinates={6,760};
 char userDirection = 'L';
 bool gamerunning=true;
 int score = 0;
 int lives = 3;
+vector<int> counts(2,0);
 
 Texture coinTexture;
 Sprite pacmanSprite;

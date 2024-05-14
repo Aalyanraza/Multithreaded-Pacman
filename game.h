@@ -198,7 +198,6 @@ void checkCollisionWithCoins()
         {
             coin.taken = true;
             score += 10;
-            cout<<"Score: "<<score<<endl;
         }
     }
 }
@@ -222,16 +221,29 @@ void drawWalls(RenderWindow& window)
 
 void drawEnemies(RenderWindow& window) 
 {
-    for (auto& enemy : enemys)  // Change const auto& to auto&
+    int i=0;
+    for (auto& enemy : enemys)
     {
+        pthread_mutex_lock(&enemymutexes[i]);
         enemy.sprite.setPosition(enemy.x, enemy.y);
         if (enemy.alive) 
         {
             window.draw(enemy.sprite);
         }
+        pthread_mutex_unlock(&enemymutexes[i]);
     }
 }
 
+void drawPowerPellets(RenderWindow& window) 
+{
+    for (const auto& pellet : powerPellets) 
+    {
+        if (pellet.available) 
+        {
+            window.draw(pellet.sprite);
+        }
+    }
+}
 
 void checkCoinDimensions() 
 {
@@ -340,8 +352,8 @@ void* game_thread(void *arg)
 
         drawWalls(window1);
         drawCoins(window1);
-
         drawEnemies(window1);
+        drawPowerPellets(window1);
 
         window1.draw(pacmanSprite);
 
