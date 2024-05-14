@@ -35,22 +35,13 @@ void initCoins()
             if (!isInsideWall(i, j) && !isInsideWall(i + 16, j + 18) &&  !isInsideWall(i + 16, j) && !isInsideWall(i, j + 18))
                 if  (!( i < 640 && i > 440 && j < 500 && j > 300) )
                 {
-                    // cout<<"Coin at: "<<i<<" "<<j<<endl;
-                    // Create a new Sprite for each coin
                     Sprite coinSprite;
                     coinSprite.setTexture(coinTexture);
                     coinSprite.setScale(0.05, 0.05);
 
                     coins.push_back(Coin(i, j, coinSprite));
-
                 }
         }
-    // int i=1;
-    // for (auto& coin : coins) 
-    // {
-    //     cout << i++ <<". Position: X = " << coin.sprite.getPosition().x << ", Y = " << coin.sprite.getPosition().x << endl;
-    // }
-
 }
 
 void initWalls()
@@ -199,7 +190,7 @@ void initWalls()
     wallVector.push_back(cornerWall4);
 }
 
-void checkCollisionWithCoins(int& score) 
+void checkCollisionWithCoins() 
 {
     for (auto& coin : coins) 
     {
@@ -252,8 +243,6 @@ void checkCoinDimensions()
     }
 }
 
-
-
 void* game_thread(void *arg)
 {
     // Create RenderWindow here
@@ -264,8 +253,6 @@ void* game_thread(void *arg)
     initWalls();
     initCoins();
 
-    //checkCoinDimensions();
-
     // Load pacman image
     Texture pacmanTexture;
     if (!pacmanTexture.loadFromFile("PacmanR.jpeg")) {
@@ -274,12 +261,6 @@ void* game_thread(void *arg)
     }
     pacmanSprite.setTexture(pacmanTexture);
     pacmanSprite.setScale(0.17, 0.17);
-
-    // int i=1;
-    // for (auto& coin : coins) 
-    // {
-    //     cout << i++ <<". Position: X = " << coin.sprite.getPosition().x << ", Y = " << coin.sprite.getPosition().x << endl;
-    // }
 
     while (window1.isOpen())
     {
@@ -325,14 +306,18 @@ void* game_thread(void *arg)
 
         }
 
+        checkCollisionWithCoins();
         
         
         window1.clear();
+
 
         // Set position of pacman sprite to userCoordinates
         pthread_mutex_lock(&usermutex2);
         pacmanSprite.setPosition(userCoordinates.x, userCoordinates.y);
         pthread_mutex_unlock(&usermutex2);
+
+
 
         drawWalls(window1);
         drawCoins(window1);

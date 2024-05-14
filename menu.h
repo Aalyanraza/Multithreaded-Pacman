@@ -17,7 +17,6 @@ using namespace sf;
 vector<pthread_mutex_t> enemymutexes;
 vector<Coordinates> enemyCoordinates;
 vector<RectangleShape> wallVector;
-vector<char> enemyDirections;
 vector <Coin> coins;
 
 pthread_mutex_t usermutex;

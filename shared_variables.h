@@ -25,13 +25,26 @@ struct Coin {
     }
 };
 
+struct Enemy
+{
+    int x, y;
+    char direction;
+    Sprite sprite;
+    bool alive;
+
+    Enemy(int i, int j, Sprite sprite1) : x(i), y(j), direction('L'), alive(true) 
+    {
+        sprite = sprite1;
+        sprite.setPosition(x, y);
+    }
+};
+
 
 // Declare shared variables for enemies, users, and walls
 extern vector<pthread_mutex_t> enemymutexes;
 extern vector<Coordinates> enemyCoordinates;
 extern vector<RectangleShape> wallVector;
 extern vector<Coin> coins;
-extern vector<char> enemyDirections;
 
 extern pthread_mutex_t usermutex;
 extern pthread_mutex_t usermutex2;
