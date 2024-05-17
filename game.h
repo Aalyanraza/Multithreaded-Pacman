@@ -10,8 +10,8 @@
 #include <SFML/Graphics.hpp>
 #include <time.h>
 #include "shared_variables.h"
-#include "user.h"
 #include "enemy.h"
+#include "collisionuser.h"
 using namespace std;
 using namespace sf;
 
@@ -236,13 +236,18 @@ void drawEnemies(RenderWindow& window)
 
 void drawPowerPellets(RenderWindow& window) 
 {
-    for (const auto& pellet : powerPellets) 
-    {
-        if (pellet.available) 
-        {
-            window.draw(pellet.sprite);
-        }
-    }
+    if (powerPellet.available) 
+        window.draw(powerPellet.sprite);
+    if (powerPellet1.available)
+        window.draw(powerPellet1.sprite);
+}
+
+void drawpower(RenderWindow& window) 
+{
+    if (pwer.available) 
+        window.draw(pwer.sprite);
+    if (pwer1.available)
+        window.draw(pwer1.sprite);
 }
 
 void drawPower(RenderWindow& window) 
@@ -309,6 +314,19 @@ void* game_thread(void *arg)
         pthread_create(&enemyThreads[i], NULL, enemyThread, (void*)&i);
 
 
+    Texture pwerTexture;
+    pwerTexture.loadFromFile("pwer.jpg"); 
+    pwer.sprite.setTexture(pwerTexture);
+    pwer.sprite.setPosition(700, 500);
+    pwer.sprite.setScale(0.2, 0.2);
+    pwer.available = true;
+
+
+    pwer1.sprite.setTexture(pwerTexture);
+    pwer1.sprite.setPosition(700, 400);
+    pwer1.sprite.setScale(0.2, 0.2);
+    pwer1.available = true;
+    
     sleep(1);
     while (window1.isOpen())
     {
@@ -371,12 +389,18 @@ void* game_thread(void *arg)
         drawCoins(window1);
         drawEnemies(window1);
         drawPowerPellets(window1);
+        drawpower(window1);
 
         window1.draw(pacmanSprite);
 
         window1.display();
 
         if (Keyboard::isKeyPressed(Keyboard::Return))
+        {
+            window1.close();
+            gamerunning = false;
+        }
+        if (lives < 0)
         {
             window1.close();
             gamerunning = false;

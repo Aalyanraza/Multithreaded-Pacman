@@ -11,6 +11,7 @@
 #include <time.h>
 #include "game.h"
 #include "shared_variables.h"
+#include "collisionuser.h"
 using namespace std;
 using namespace sf;
 
@@ -18,23 +19,60 @@ vector<pthread_mutex_t> enemymutexes;
 vector<Enemy> enemys;
 vector<RectangleShape> wallVector;
 vector <Coin> coins;
-vector <PowerPellet> powerPellets;
 
 pthread_mutex_t usermutex;
 pthread_mutex_t usermutex2;
 pthread_mutex_t enemymutex1;
 pthread_mutex_t pelletmutex;
+pthread_mutex_t pelletmutex1;
+pthread_mutex_t pwermutex;
 
 Coordinates userCoordinates={6,760};
 char userDirection = 'L';
 bool gamerunning=true;
 int score = 0;
 int lives = 3;
-vector<int> counts(2,0);
-power pwer(385, 355);
+int counts=0;
+int count1=0;
+bool pwerTaken=false;
+PowerPellet powerPellet;
+PowerPellet powerPellet1;
+power pwer(500, 500);
+power pwer1(500, 400);
+
 
 Texture coinTexture;
 Sprite pacmanSprite;
+
+void* handleUserCollisionWithPwer(void* arg) 
+{
+    while (gamerunning) 
+    {
+        pthread_mutex_lock(&pwermutex);
+
+        // Check collision with pwer
+        if (pwer.available && pacmanSprite.getGlobalBounds().intersects(pwer.sprite.getGlobalBounds())) 
+        {
+            pwer.available = false;
+            pwerTaken = true;
+            pthread_mutex_lock(&pwermutex);
+        }
+
+        // Check collision with pwer1
+        if (pwer1.available && pacmanSprite.getGlobalBounds().intersects(pwer1.sprite.getGlobalBounds())) 
+        {
+            pwer1.available = false;
+            pwerTaken = true;
+            cout << "User collided with pwer1" << endl;
+            pthread_mutex_lock(&pwermutex);
+        }
+
+        pthread_mutex_unlock(&pwermutex);
+
+        usleep(10000);
+    }
+    return nullptr; // Return nullptr instead of void pointer
+}
 
 bool isCollisionWithWall(int x, int y, const Sprite& sprite) 
 {
@@ -57,8 +95,6 @@ bool isCollisionWithWall(int x, int y, const Sprite& sprite)
     return false;
 }
 
-
-
 void game() 
 {
     coinTexture.loadFromFile("coin.jpg");
@@ -66,12 +102,17 @@ void game()
     pthread_t game;
     pthread_create(&game, NULL, game_thread, NULL);
 
+    pthread_t coll2;
+    pthread_create(&coll2, NULL, handleUserCollisionWithPwer, NULL);
+    
     while (gamerunning) 
     {
         pthread_mutex_lock(&usermutex);
         char temp = userDirection;
         pthread_mutex_unlock(&usermutex);
 
+
+        
         pthread_mutex_lock(&usermutex2);
         if (temp == 'U' && userCoordinates.y > 6) 
         {
@@ -95,11 +136,21 @@ void game()
         }
         pthread_mutex_unlock(&usermutex2);
         
+        if (pwerTaken && count1 == 625)
+        {
+            cout << "Power eaten done" << endl;
+            pwerTaken = false;
+            pwer.available = true;
+            pwer1.available = true;
+            pthread_mutex_unlock(&pwermutex);
+            count1=0;
+        }
+        else if (pwerTaken)
+            count1++;
+
         sleep(milliseconds(5));
     }
 }
-
-
 
 void instructions(RenderWindow& window)
 {

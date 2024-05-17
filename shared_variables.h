@@ -27,12 +27,10 @@ struct Coin {
 
 struct Enemy
 {
-    int x, y, pelletEaten;
+    int x, y;
+    bool  pelletEaten;
     Sprite sprite;
     bool alive;
-
-
-
     Enemy() : x(0), y(0), alive(true), pelletEaten(0)
     {
         Texture texture;
@@ -53,16 +51,9 @@ struct PowerPellet
     int  x, y;
     bool available;
     Sprite sprite;
-    PowerPellet(int a=0, int b=0) : x(a), y(b), available(true) 
-    {
-        Texture texture;
-        texture.loadFromFile("pill.jpg");
-        sprite.setTexture(texture);
-        sprite.setPosition(x, y);
-        sprite.setScale(0.2, 0.2);
-    }
+    PowerPellet(int a=0, int b=0) : x(a), y(b), available(false) 
+    {}
 };
-
 
 struct power
 {
@@ -70,40 +61,41 @@ struct power
     Sprite sprite;
     bool available;
 
-    power(int a=0, int b=0) : x(a), y(b), available(true) 
-    {
-        Texture texture;
-        texture.loadFromFile("pwer.jpg");
-        sprite.setTexture(texture);
-        sprite.setPosition(x, y);
-        sprite.setScale(0.2, 0.2);
-    }
+    power(int a=0, int b=0) : x(a), y(b), available(false) 
+    {}
 };
 // Declare shared variables for enemies, users, and walls
 extern vector<pthread_mutex_t> enemymutexes;
 extern vector<Enemy> enemys;
 extern vector<RectangleShape> wallVector;
 extern vector<Coin> coins;
-extern vector<PowerPellet> powerPellets;
 
 extern pthread_mutex_t usermutex;
 extern pthread_mutex_t usermutex2;
 extern pthread_mutex_t enemymutex1;
 extern pthread_mutex_t pelletmutex;
+extern pthread_mutex_t pelletmutex1;
 extern pthread_mutex_t keyMutex1;
 extern pthread_mutex_t permitMutex2;
 extern pthread_mutex_t keyMutex2;
 extern pthread_mutex_t permitMutex2;
 extern pthread_mutex_t diners;
 extern pthread_mutex_t diners1;
+extern pthread_mutex_t pwermutex;
+
 
 extern Coordinates userCoordinates;
 extern char userDirection;
 extern bool gamerunning;
 extern int score;
+extern int count1;
 extern int lives;
-extern vector<int> counts;
+extern int counts;
+extern PowerPellet powerPellet;
+extern PowerPellet powerPellet1;
 extern power pwer;
+extern power pwer1;
+extern bool pwerTaken;
 
 extern Texture coinTexture;
 extern Sprite pacmanSprite;

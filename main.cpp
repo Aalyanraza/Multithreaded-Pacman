@@ -15,5 +15,6 @@ int main()
     pthread_create(&menu, NULL, menu_thread, NULL);
     sleep(1);
     while (gamerunning) {}
+    sleep (1);
     return 0;
 }

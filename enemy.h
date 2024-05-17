@@ -7,6 +7,8 @@
 #include <time.h>
 #include "menu.h"
 #include "game.h"
+#include "shared_variables.h"
+#include "collision.h"
 using namespace std;
 
 pthread_mutex_t keyMutex1 = PTHREAD_MUTEX_INITIALIZER;
@@ -20,9 +22,6 @@ void ghostBehavior(int ghostID) {
 
     if (ghostID == 0)
     {
-
-        
-        
         pthread_mutex_lock(&keyMutex1);
         pthread_mutex_lock(&diners);
         pthread_mutex_lock(&permitMutex1);
@@ -41,9 +40,6 @@ void ghostBehavior(int ghostID) {
     }
     else if (ghostID == 1)
     {
-
-        
-        
         pthread_mutex_lock(&keyMutex2);
         pthread_mutex_lock(&diners1);
         pthread_mutex_lock(&permitMutex1);
@@ -96,32 +92,6 @@ void ghostBehavior(int ghostID) {
    
 }
 
-void initPowerPellets() 
-{
-    PowerPellet pellet1(100, 500);
-    powerPellets.push_back(pellet1);
-
-    // PowerPellet pellet2(700,10)    ;
-    // powerPellets.push_back(pellet2);
-
-}
-
-void handleEnemyCollisionWithPellets(int enemyId) 
-{
-    pthread_mutex_lock(&pelletmutex);
-    for (int i = 0; i < 2; ++i) 
-    {
-        if (powerPellets[i].available && enemys[enemyId].sprite.getGlobalBounds().intersects(powerPellets[i].sprite.getGlobalBounds())) 
-        {
-            powerPellets[i].available = false;
-            enemys[enemyId].pelletEaten = i+1;
-            
-            counts[i] = 0;
-            cout<<"pellet eaten by "<<enemyId<<endl;
-        }
-    }
-    pthread_mutex_unlock(&pelletmutex);
-}
 
 void* enemyThread(void* num)
 {
@@ -172,18 +142,61 @@ void* enemyThread(void* num)
     enemymutexes.push_back(PTHREAD_MUTEX_INITIALIZER);
     pthread_mutex_unlock(&enemymutex1);
 
-    initPowerPellets();
+    pthread_mutex_lock(&pelletmutex);
+
+    Texture pillTexture;
+    !pillTexture.loadFromFile("pill.jpeg"); 
+    powerPellet.sprite.setTexture(pillTexture);
+    powerPellet.sprite.setPosition(100, 500);
+    powerPellet.sprite.setScale(0.2, 0.2);
+    powerPellet.available = true;
+
+
+    powerPellet1.sprite.setTexture(pillTexture);
+    powerPellet1.sprite.setPosition(100, 400);
+    powerPellet1.sprite.setScale(0.2, 0.2);
+    powerPellet1.available = true;
+
+    // Unlock the mutex
+    pthread_mutex_unlock(&pelletmutex);
+
+    pthread_t coll;
+    pthread_create(&coll, NULL, handleEnemyCollisionWithPellets, (void*)(&enemyId));
 
     while (gamerunning)
     {
-        if(cou==0){
-        ghostBehavior(enemyId);
-        cou++;
-        enemy.sprite.setPosition(enemys[enemyId].x, enemys[enemyId].y);
+        if(cou==0)
+        {
+            ghostBehavior(enemyId);
+            cou++;
+            enemy.sprite.setPosition(enemys[enemyId].x, enemys[enemyId].y);
         }
 
         pthread_mutex_lock(&enemymutexes[enemyId]);
-        if (enemys[enemyId].x < userCoordinates.x && !isCollisionWithWall(enemys[enemyId].x + 1, enemys[enemyId].y, enemys[enemyId].sprite))
+        if (enemys[enemyId].sprite.getGlobalBounds().intersects(pacmanSprite.getGlobalBounds()))
+        {
+            if (pwerTaken)
+            {
+                cout << "Ghost " << enemyId << " was eaten." << endl;
+                enemys[enemyId].x = 455;
+                enemys[enemyId].y = 355;
+                pthread_mutex_unlock(&enemymutexes[enemyId]);
+                ghostBehavior(enemyId);
+                pthread_mutex_lock(&enemymutexes[enemyId]);
+            }
+            else
+            {
+                lives--;
+                cout << "Lives: " << lives << endl;
+                pthread_mutex_lock(&usermutex2);
+                if (userCoordinates.x > 500)
+                    userCoordinates = {6, 760};
+                else
+                    userCoordinates = {1030, 6};
+                pthread_mutex_unlock(&usermutex2);
+            }
+        }
+        else if (enemys[enemyId].x < userCoordinates.x && !isCollisionWithWall(enemys[enemyId].x + 1, enemys[enemyId].y, enemys[enemyId].sprite))
             enemys[enemyId].x += 1;
         else if (enemys[enemyId].x > userCoordinates.x && !isCollisionWithWall(enemys[enemyId].x - 1, enemys[enemyId].y, enemys[enemyId].sprite))
             enemys[enemyId].x -= 1;
@@ -191,46 +204,26 @@ void* enemyThread(void* num)
             enemys[enemyId].y += 1;
         else if (enemys[enemyId].y > userCoordinates.y && !isCollisionWithWall(enemys[enemyId].x, enemys[enemyId].y - 1, enemys[enemyId].sprite))
             enemys[enemyId].y -= 1;
-        else if (enemys[enemyId].sprite.getGlobalBounds().intersects(pacmanSprite.getGlobalBounds()))
-        {
-            lives--;
-            cout << "Lives: " << lives << endl;
-            pthread_mutex_lock(&usermutex2);
-            if (userCoordinates.x > 500)
-                userCoordinates = {6, 760};
-            else
-                userCoordinates = {1030, 6};
-            pthread_mutex_unlock(&usermutex2);
-        }
-        pthread_mutex_unlock(&enemymutexes[enemyId]);
         
-        handleEnemyCollisionWithPellets(enemyId);
+        pthread_mutex_unlock(&enemymutexes[enemyId]);
 
-        if (enemys[enemyId].pelletEaten == 1 && counts[0] == 625)
+        if (enemys[enemyId].pelletEaten && counts == 625)
         {
-            cout<<"pellet eaten done"<<endl;
-            enemys[enemyId].pelletEaten = 0;
-            counts[0] = 0;
+            cout << "Pellet eaten done" << endl;
+            enemys[enemyId].pelletEaten = false;
+            powerPellet.available = true;
+            powerPellet1.available = true;
+            pthread_mutex_unlock(&pelletmutex);
         }
-        else if (enemys[enemyId].pelletEaten == 2 && counts[1] == 625)
+        else if (enemys[enemyId].pelletEaten)
         {
-            cout<<"pellet eaten done"<<endl;
-            enemys[enemyId].pelletEaten = 0;
-            counts[1] = 0;
-        }
-        else if (enemys[enemyId].pelletEaten == 1)
-        {
-            counts[0]++;
-            cout<<"count[0]:"<<counts[0]<<endl;
-            sleep(milliseconds(3));
-        }
-        else if (enemys[enemyId].pelletEaten == 2)
-        {
-            counts[1]++;
-            cout<<"count[1]:"<<counts[1]<<endl;
-            sleep(milliseconds(3));
+            counts++;
+            sleep(milliseconds(5));
         }
         else
             sleep(milliseconds(8));
+        
     }
+    void* status;
+    return status;
 }
