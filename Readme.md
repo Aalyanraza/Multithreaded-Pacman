@@ -29,12 +29,6 @@ This project is a Pac-Man game where the player controls Pac-Man to collect coin
 ### Install SFML:
 Follow the instructions on the [SFML website](https://www.sfml-dev.org/download.php) to install SFML on your system.
 
-### Build the project:
-```sh
-mkdir build
-cd build
-cmake ..
-make
 
 # Game Controls
 
