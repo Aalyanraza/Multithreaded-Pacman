@@ -186,9 +186,9 @@ void* enemyThread(void* num)
             }
             else
             {
+                pthread_mutex_lock(&usermutex2);
                 lives--;
                 cout << "Lives: " << lives << endl;
-                pthread_mutex_lock(&usermutex2);
                 if (userCoordinates.x > 500)
                     userCoordinates = {6, 760};
                 else
